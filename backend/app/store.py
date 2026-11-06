@@ -43,3 +43,15 @@ def add_tenant(tenant_id: str, name: str) -> None:
 def audit(tenant_id: str, action: str, detail: dict) -> None:
     with _path(tenant_id, "audit.log").open("a") as f:
         f.write(json.dumps({"at": now(), "action": action, **detail}, ensure_ascii=False) + "\n")
+
+
+def list_records(kind: str, tenant_id: str) -> list[dict]:
+    folder = ROOT / tenant_id / kind
+    if not folder.exists():
+        return []
+    out = []
+    for f in sorted(folder.glob("*.json"), reverse=True):
+        d = json.loads(f.read_text())
+        out.append({"id": f.stem, "baseline": d.get("baseline"), "at": d.get("at"),
+                    "created": len(d.get("created", [])), "errors": len(d.get("errors", []))})
+    return out
