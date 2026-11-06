@@ -45,16 +45,10 @@ Abre http://localhost:8000/docs
 - Frontend React.
 - Modos 2 y 3 del restablecimiento (quitar lo del portal, reset total).
 
-## Despliegue desde GitHub (Azure Container Apps)
-Cada push a `main` construye la imagen en GHCR y, si configuraste las variables, la despliega.
+## Despliegue desde GitHub (Azure App Service)
+Cada push a `main` empaqueta la app y la despliega a una Web App Linux (Python 3.12) por OIDC.
+Ver `infra/azure-setup.sh` para crear los recursos. Luego en GitHub > Settings > Secrets and variables > Actions:
+- Secrets: AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID
+- Variable: AZURE_WEBAPP_NAME
 
-1. Crea en Azure un Resource Group y una Container App (puerto 8000).
-2. En la Container App configura las variables CLIENT_ID, REDIRECT_URI y el secreto CLIENT_SECRET
-   (o mejor, referencia a Key Vault). Agrega la URL pública `/onboarding/callback` como Redirect URI de la app de Entra ID.
-3. Crea una identidad para GitHub Actions con credencial federada (OIDC) para este repo, rama `main`,
-   con rol Contributor sobre el Resource Group.
-4. En GitHub > Settings > Secrets and variables > Actions:
-   - Secrets: AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID, GHCR_PULL_TOKEN (PAT con read:packages)
-   - Variables: AZURE_CONTAINERAPP_NAME, AZURE_RESOURCE_GROUP
-
-Nota: `data/` en el contenedor es efímero; en la fase 2 se reemplaza por PostgreSQL / Azure Files.
+Datos: `DATA_DIR=/home/data` (almacenamiento persistente de App Service) hasta migrar a PostgreSQL.
