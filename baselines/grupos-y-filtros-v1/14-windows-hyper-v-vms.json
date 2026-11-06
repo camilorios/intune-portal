@@ -1,0 +1,9 @@
+{
+  "resource": "assignmentFilters",
+  "body": {
+    "displayName": "Windows - Hyper-V VMs",
+    "description": "Filter for Hyper-V VMs (may overlap with Azure)",
+    "platform": "windows10AndLater",
+    "rule": "(device.manufacturer -eq \"Microsoft Corporation\") and (device.model -contains \"Virtual\")"
+  }
+}

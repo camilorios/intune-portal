@@ -1,0 +1,9 @@
+{
+  "resource": "assignmentFilters",
+  "body": {
+    "displayName": "Windows - Microsoft Dev Box",
+    "description": "Filter for Microsoft Dev Box devices",
+    "platform": "windows10AndLater",
+    "rule": "(device.manufacturer -contains \"Microsoft\") and (device.model -contains \"Cloud\")"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Identidad segura (acceso condicional)",
+  "description": "MFA para administradores, portales de admin, Azure, todos los usuarios e invitados; bloqueo de autenticación heredada; registro seguro de MFA. Se crea en modo SOLO INFORME y excluye el grupo de emergencia.",
+  "requires": "Entra ID P1",
+  "source": "Intune Hydration Kit (MIT) adaptado por JCRsystem",
+  "source_url": "https://github.com/jorgeasaurus/IntuneHydrationKit"
+}

@@ -1,0 +1,9 @@
+{
+  "resource": "assignmentFilters",
+  "body": {
+    "displayName": "Windows - Windows 365 Cloud PC",
+    "description": "Filter for Windows 365 Cloud PC devices",
+    "platform": "windows10AndLater",
+    "rule": "(device.model -contains \"Cloud PC\")"
+  }
+}

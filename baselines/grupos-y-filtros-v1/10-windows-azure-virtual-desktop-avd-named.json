@@ -1,0 +1,9 @@
+{
+  "resource": "assignmentFilters",
+  "body": {
+    "displayName": "Windows - Azure Virtual Desktop (AVD) Named",
+    "description": "Filter for AVD VMs with AVD- naming convention",
+    "platform": "windows10AndLater",
+    "rule": "(device.model -contains \"Virtual Machine\") and (device.deviceName -startsWith \"AVD-\")"
+  }
+}

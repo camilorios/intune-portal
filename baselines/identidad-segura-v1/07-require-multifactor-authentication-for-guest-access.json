@@ -1,0 +1,42 @@
+{
+  "resource": "conditionalAccess",
+  "body": {
+    "conditions": {
+      "userRiskLevels": [],
+      "signInRiskLevels": [],
+      "clientAppTypes": [
+        "all"
+      ],
+      "servicePrincipalRiskLevels": [],
+      "applications": {
+        "includeApplications": [
+          "All"
+        ],
+        "excludeApplications": [],
+        "includeUserActions": [],
+        "includeAuthenticationContextClassReferences": []
+      },
+      "users": {
+        "includeUsers": [
+          "GuestsOrExternalUsers"
+        ],
+        "excludeUsers": [],
+        "includeGroups": [],
+        "excludeGroups": [
+          "@group:Cuentas de emergencia (break-glass)"
+        ],
+        "includeRoles": [],
+        "excludeRoles": []
+      }
+    },
+    "grantControls": {
+      "operator": "OR",
+      "builtInControls": [
+        "mfa"
+      ],
+      "customAuthenticationFactors": [],
+      "termsOfUse": []
+    },
+    "displayName": "Require multifactor authentication for guest access"
+  }
+}

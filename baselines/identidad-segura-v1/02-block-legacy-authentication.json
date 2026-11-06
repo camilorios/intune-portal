@@ -1,0 +1,43 @@
+{
+  "resource": "conditionalAccess",
+  "body": {
+    "conditions": {
+      "userRiskLevels": [],
+      "signInRiskLevels": [],
+      "clientAppTypes": [
+        "exchangeActiveSync",
+        "other"
+      ],
+      "servicePrincipalRiskLevels": [],
+      "applications": {
+        "includeApplications": [
+          "All"
+        ],
+        "excludeApplications": [],
+        "includeUserActions": [],
+        "includeAuthenticationContextClassReferences": []
+      },
+      "users": {
+        "includeUsers": [
+          "All"
+        ],
+        "excludeUsers": [],
+        "includeGroups": [],
+        "excludeGroups": [
+          "@group:Cuentas de emergencia (break-glass)"
+        ],
+        "includeRoles": [],
+        "excludeRoles": []
+      }
+    },
+    "grantControls": {
+      "operator": "OR",
+      "builtInControls": [
+        "block"
+      ],
+      "customAuthenticationFactors": [],
+      "termsOfUse": []
+    },
+    "displayName": "Block legacy authentication"
+  }
+}

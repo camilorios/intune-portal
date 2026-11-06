@@ -1,0 +1,9 @@
+{
+  "resource": "assignmentFilters",
+  "body": {
+    "displayName": "Windows - All Virtual Machines",
+    "description": "Filter for all VMs - use for reporting only",
+    "platform": "windows10AndLater",
+    "rule": "(device.model -contains \"Virtual\") or (device.model -contains \"Cloud PC\") or (device.manufacturer -contains \"VMware\") or (device.manufacturer -contains \"Parallels\") or (device.manufacturer -contains \"QEMU\")"
+  }
+}

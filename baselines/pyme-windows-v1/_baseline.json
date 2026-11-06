@@ -1,0 +1,5 @@
+{
+  "title": "Pyme Windows",
+  "description": "Cumplimiento base de Windows (BitLocker, Secure Boot, antivirus y firewall) y restricciones generales, asignados a todos los dispositivos.",
+  "source": "JCRsystem"
+}

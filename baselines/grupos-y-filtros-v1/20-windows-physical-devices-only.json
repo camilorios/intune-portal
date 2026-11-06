@@ -1,0 +1,9 @@
+{
+  "resource": "assignmentFilters",
+  "body": {
+    "displayName": "Windows - Physical Devices Only",
+    "description": "Filter excluding all known VMs",
+    "platform": "windows10AndLater",
+    "rule": "(device.model -notContains \"Virtual\") and (device.model -notContains \"Cloud PC\") and (device.manufacturer -notContains \"VMware\") and (device.manufacturer -notContains \"Parallels\") and (device.manufacturer -notContains \"QEMU\")"
+  }
+}

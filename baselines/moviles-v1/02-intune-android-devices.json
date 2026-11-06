@@ -1,0 +1,8 @@
+{
+  "resource": "groups",
+  "body": {
+    "displayName": "Intune - Android Devices",
+    "description": "All Android devices managed by Intune",
+    "membershipRule": "(device.deviceOSType -match \"Android\")"
+  }
+}

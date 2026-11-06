@@ -1,0 +1,9 @@
+{
+  "resource": "assignmentFilters",
+  "body": {
+    "displayName": "Windows - VirtualBox VMs",
+    "description": "Filter for Oracle VirtualBox VMs",
+    "platform": "windows10AndLater",
+    "rule": "(device.model -contains \"VirtualBox\")"
+  }
+}

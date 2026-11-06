@@ -36,7 +36,9 @@ class GraphClient:
             return r
         raise RuntimeError(f"{method} {url}: demasiados reintentos")
 
-    def list_all(self, path: str, version: str = "v1.0") -> list[dict]:
+    def list_all(self, path: str, version: str = "v1.0", query: str = "") -> list[dict]:
+        if query:
+            path = f"{path}?{query}"
         items, r = [], self.request("GET", path, version).json()
         items += r.get("value", [])
         while r.get("@odata.nextLink"):
@@ -46,6 +48,12 @@ class GraphClient:
 
     def create(self, path: str, body: dict, version: str = "v1.0") -> dict:
         return self.request("POST", path, version, json=body).json()
+
+    def get(self, path: str, version: str = "v1.0") -> dict:
+        return self.request("GET", path, version).json()
+
+    def patch(self, path: str, body: dict, version: str = "v1.0") -> None:
+        self.request("PATCH", path, version, json=body)
 
     def delete(self, path: str, version: str = "v1.0") -> None:
         self.request("DELETE", path, version)

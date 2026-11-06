@@ -1,7 +1,11 @@
-# Portal Intune multi-tenant — Fase 1 (MVP backend)
+# Portal Intune multi-tenant — v0.2
 
-Incluye: onboarding por consentimiento de administrador, backup completo a JSON, vista previa,
-despliegue de baselines con snapshot previo y reversión de un despliegue (modo 1 del reset).
+Incluye: onboarding por consentimiento de administrador, backup completo y cifrado (AES-256-GCM),
+vista previa, despliegue de baselines (omitir o actualizar lo existente) con snapshot previo,
+grupos dinámicos y filtros con asignaciones por nombre (tabla de migración por tenant),
+acceso condicional en modo solo informe con grupo de emergencia excluido, detección de
+desviaciones por propiedad con restauración, y restablecimiento modos 1 (revertir un despliegue)
+y 2 (quitar todo lo [HK]). El portal nunca ejecuta acciones sobre dispositivos.
 
 ## 1. Registrar la app en TU tenant (Entra ID)
 1. Entra ID > App registrations > New registration
@@ -35,15 +39,39 @@ Abre http://localhost:8000/docs
 
 ## Estructura
 - `backend/app/graph.py`: cliente Graph por tenant con reintentos por throttling (429).
-- `backend/app/resources.py`: tipos de objetos Intune y orden para el reset.
-- `backend/app/backup.py`, `deploy.py`: backup, vista previa, despliegue, reversión.
-- `baselines/<nombre>/*.json`: cada archivo = un objeto a crear.
+- `backend/app/resources.py`: catálogo de tipos (endpoint, orden de importación, propiedades de solo lectura).
+- `backend/app/backup.py`: backup de todos los tipos con sus asignaciones.
+- `backend/app/deploy.py`: vista previa, despliegue (skip/update), referencias `@group:` / `@filter:`, reversión.
+- `backend/app/drift.py`: desviaciones por propiedad y restauración.
+- `backend/app/reset.py`: modo 2 del restablecimiento.
+- `backend/tests/`: flujo completo contra un Graph falso (`cd backend && python -m pytest -q`).
+- `baselines/<nombre>/`: `_baseline.json` (título, descripción, fuente) y un JSON por objeto.
+- `scripts/import_hydration_kit.py`: regenera las baselines basadas en Intune Hydration Kit (MIT).
 - `data/`: tenants, backups, despliegues y auditoría (MVP en archivos; luego PostgreSQL).
 
+## Formato de un objeto de baseline
+```json
+{
+  "resource": "compliance",
+  "assign": {"groups": ["Intune - iOS iPadOS Devices"], "filter": {"name": "Windows - Physical Devices Only", "mode": "include"}},
+  "body": {"@odata.type": "#microsoft.graph.iosCompliancePolicy", "displayName": "iOS Compliance"}
+}
+```
+`assign` admite `allDevices`, `allUsers`, `groups`, `excludeGroups` y `filter`. Dentro de `body`,
+`"@group:Nombre"` y `"@filter:Nombre"` se sustituyen por el ID real en el tenant del cliente.
+
+## Baselines incluidas
+| Baseline | Contenido |
+|---|---|
+| `grupos-y-filtros-v1` | 8 grupos dinámicos (SO, Autopilot, corporativo/BYOD) y 12 filtros de VM y Cloud PC. Desplegar primero. |
+| `identidad-segura-v1` | 7 políticas de acceso condicional (MFA admins, portales, Azure, usuarios, invitados; bloqueo de autenticación heredada; registro de MFA) en solo informe + grupo de emergencia. Requiere Entra ID P1. |
+| `moviles-v1` | Cumplimiento iOS/Android y protección de apps nivel 2 para iOS y Android. |
+| `pyme-windows-v1` | Cumplimiento y restricciones de Windows para todos los dispositivos. |
+
 ## Siguiente
-- Login Entra ID para técnicos y roles.
-- Frontend React.
-- Modos 2 y 3 del restablecimiento (quitar lo del portal, reset total).
+- Roles de técnicos (lector, operador, administrador) y modo 3 del reset.
+- Informe del tenant en HTML/PDF con la marca de JCRsystem.
+- Key Vault con certificado en lugar de client secret.
 
 ## Despliegue desde GitHub (Azure App Service)
 Cada push a `main` empaqueta la app y la despliega a una Web App Linux (Python 3.12) por OIDC.

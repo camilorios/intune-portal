@@ -1,0 +1,54 @@
+{
+  "resource": "conditionalAccess",
+  "body": {
+    "conditions": {
+      "userRiskLevels": [],
+      "signInRiskLevels": [],
+      "clientAppTypes": [
+        "all"
+      ],
+      "servicePrincipalRiskLevels": [],
+      "applications": {
+        "includeApplications": [],
+        "excludeApplications": [],
+        "includeUserActions": [
+          "urn:user:registersecurityinfo"
+        ],
+        "includeAuthenticationContextClassReferences": []
+      },
+      "users": {
+        "includeUsers": [
+          "All"
+        ],
+        "excludeUsers": [
+          "GuestsOrExternalUsers"
+        ],
+        "includeGroups": [],
+        "excludeGroups": [
+          "@group:Cuentas de emergencia (break-glass)"
+        ],
+        "includeRoles": [],
+        "excludeRoles": [
+          "62e90394-69f5-4237-9190-012177145e10"
+        ]
+      },
+      "locations": {
+        "includeLocations": [
+          "All"
+        ],
+        "excludeLocations": [
+          "AllTrusted"
+        ]
+      }
+    },
+    "grantControls": {
+      "operator": "OR",
+      "builtInControls": [
+        "mfa"
+      ],
+      "customAuthenticationFactors": [],
+      "termsOfUse": []
+    },
+    "displayName": "Securing security info registration"
+  }
+}

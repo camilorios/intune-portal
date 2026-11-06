@@ -1,6 +1,8 @@
 {
   "resource": "compliance",
-  "assignAllDevices": true,
+  "assign": {
+    "allDevices": true
+  },
   "body": {
     "@odata.type": "#microsoft.graph.windows10CompliancePolicy",
     "displayName": "Windows - Cumplimiento base",
@@ -18,7 +20,12 @@
       {
         "ruleName": "PasswordRequired",
         "scheduledActionConfigurations": [
-          {"actionType": "block", "gracePeriodHours": 24, "notificationTemplateId": "", "notificationMessageCCList": []}
+          {
+            "actionType": "block",
+            "gracePeriodHours": 24,
+            "notificationTemplateId": "",
+            "notificationMessageCCList": []
+          }
         ]
       }
     ]

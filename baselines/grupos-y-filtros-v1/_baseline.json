@@ -1,0 +1,6 @@
+{
+  "title": "Grupos dinámicos y filtros",
+  "description": "8 grupos dinámicos por sistema operativo, Autopilot y propiedad, y filtros para máquinas virtuales y Cloud PC. Desplegar antes que las demás baselines.",
+  "source": "Intune Hydration Kit (MIT) adaptado por JCRsystem",
+  "source_url": "https://github.com/jorgeasaurus/IntuneHydrationKit"
+}

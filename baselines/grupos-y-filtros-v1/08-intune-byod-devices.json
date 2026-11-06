@@ -1,0 +1,8 @@
+{
+  "resource": "groups",
+  "body": {
+    "displayName": "Intune - BYOD Devices",
+    "description": "All personally owned devices managed by Intune",
+    "membershipRule": "(device.deviceOwnership -eq \"Personal\")"
+  }
+}

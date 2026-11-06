@@ -1,0 +1,8 @@
+{
+  "resource": "groups",
+  "body": {
+    "displayName": "Intune - Autopilot Devices",
+    "description": "All devices enrolled via Windows Autopilot",
+    "membershipRule": "(device.devicePhysicalIDs -any (_ -startsWith \"[ZTDID]\"))"
+  }
+}

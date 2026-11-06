@@ -1,0 +1,8 @@
+{
+  "resource": "groups",
+  "body": {
+    "displayName": "Intune - macOS Devices",
+    "description": "All macOS devices managed by Intune",
+    "membershipRule": "(device.deviceOSType -eq \"MacMDM\")"
+  }
+}

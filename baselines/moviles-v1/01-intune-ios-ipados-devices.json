@@ -1,0 +1,8 @@
+{
+  "resource": "groups",
+  "body": {
+    "displayName": "Intune - iOS iPadOS Devices",
+    "description": "All iOS and iPadOS devices managed by Intune",
+    "membershipRule": "(device.deviceOSType -eq \"iOS\") or (device.deviceOSType -eq \"iPad\")"
+  }
+}

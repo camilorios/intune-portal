@@ -1,6 +1,8 @@
 {
   "resource": "deviceConfigurations",
-  "assignAllDevices": true,
+  "assign": {
+    "allDevices": true
+  },
   "body": {
     "@odata.type": "#microsoft.graph.windows10GeneralConfiguration",
     "displayName": "Windows - Restricciones generales",

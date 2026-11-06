@@ -36,7 +36,7 @@ if [ -z "$GRAPH_APP_ID" ]; then
 fi
 for P in DeviceManagementConfiguration.ReadWrite.All DeviceManagementApps.ReadWrite.All \
          DeviceManagementServiceConfig.ReadWrite.All Group.ReadWrite.All Policy.Read.All \
-         Policy.ReadWrite.ConditionalAccess; do
+         Policy.ReadWrite.ConditionalAccess Application.Read.All; do
   RID=$(az ad sp show --id "$GRAPH_ID" --query "appRoles[?value=='$P'].id | [0]" -o tsv)
   az ad app permission add --id "$GRAPH_APP_ID" --api "$GRAPH_ID" --api-permissions "$RID=Role" -o none 2>/dev/null || true
 done
@@ -45,7 +45,7 @@ GRAPH_SECRET=$(az ad app credential reset --id "$GRAPH_APP_ID" --display-name "w
 az webapp config appsettings set -g "$RG" -n "$APP" -o none --settings \
   SCM_DO_BUILD_DURING_DEPLOYMENT=true DATA_DIR=/home/data BASELINES_DIR=/home/site/wwwroot/baselines \
   OBJECT_PREFIX="[HK]" CLIENT_ID="$GRAPH_APP_ID" CLIENT_SECRET="$GRAPH_SECRET" \
-  REDIRECT_URI="$URL/onboarding/callback"
+  REDIRECT_URI="$URL/onboarding/callback" BACKUP_KEY="$(head -c 32 /dev/urandom | base64)"
 unset GRAPH_SECRET
 
 # 3. Identidad OIDC para GitHub Actions

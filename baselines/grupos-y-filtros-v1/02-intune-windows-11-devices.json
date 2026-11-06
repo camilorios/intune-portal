@@ -1,0 +1,8 @@
+{
+  "resource": "groups",
+  "body": {
+    "displayName": "Intune - Windows 11 Devices",
+    "description": "All Windows 11 devices managed by Intune",
+    "membershipRule": "(device.deviceOSType -eq \"Windows\") and (device.deviceOSVersion -startsWith \"10.0.2\") and (device.managementType -eq \"MDM\")"
+  }
+}

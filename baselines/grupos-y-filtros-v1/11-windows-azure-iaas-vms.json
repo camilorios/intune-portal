@@ -1,0 +1,9 @@
+{
+  "resource": "assignmentFilters",
+  "body": {
+    "displayName": "Windows - Azure IaaS VMs",
+    "description": "Filter for Azure IaaS Virtual Machines",
+    "platform": "windows10AndLater",
+    "rule": "(device.manufacturer -eq \"Microsoft Corporation\") and (device.model -contains \"Virtual Machine\")"
+  }
+}

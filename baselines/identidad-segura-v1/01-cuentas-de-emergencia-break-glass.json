@@ -1,0 +1,7 @@
+{
+  "resource": "groups",
+  "body": {
+    "displayName": "Cuentas de emergencia (break-glass)",
+    "description": "Cuentas de acceso de emergencia excluidas de todo el acceso condicional. Añade 2 cuentas cloud-only antes de activar las políticas."
+  }
+}

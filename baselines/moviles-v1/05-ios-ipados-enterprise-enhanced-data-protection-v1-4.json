@@ -1,0 +1,142 @@
+{
+  "resource": "appProtectionIOS",
+  "body": {
+    "displayName": "iOS/iPadOS Enterprise Enhanced Data Protection v1.4",
+    "description": "This app protection policy introduces data leakage prevention mechanisms and minimum OS requirements. This is the configuration that is applicable to most mobile users accessing work or school data.",
+    "roleScopeTagIds": [
+      "0"
+    ],
+    "periodOfflineBeforeAccessCheck": "PT12H",
+    "periodOnlineBeforeAccessCheck": "PT30M",
+    "allowedInboundDataTransferSources": "allApps",
+    "allowedOutboundDataTransferDestinations": "managedApps",
+    "organizationalCredentialsRequired": false,
+    "allowedOutboundClipboardSharingLevel": "managedAppsWithPasteIn",
+    "dataBackupBlocked": true,
+    "deviceComplianceRequired": true,
+    "managedBrowserToOpenLinksRequired": true,
+    "saveAsBlocked": true,
+    "periodOfflineBeforeWipeIsEnforced": "P90D",
+    "pinRequired": true,
+    "maximumPinRetries": 5,
+    "simplePinBlocked": false,
+    "minimumPinLength": 4,
+    "pinCharacterSet": "numeric",
+    "periodBeforePinReset": "PT0S",
+    "allowedDataStorageLocations": [
+      "oneDriveForBusiness",
+      "sharePoint"
+    ],
+    "contactSyncBlocked": false,
+    "printBlocked": false,
+    "fingerprintBlocked": false,
+    "disableAppPinIfDevicePinIsSet": false,
+    "minimumRequiredOsVersion": "13.7",
+    "appActionIfDeviceComplianceRequired": "block",
+    "appActionIfMaximumPinRetriesExceeded": "block",
+    "pinRequiredInsteadOfBiometricTimeout": "PT12H",
+    "allowedOutboundClipboardSharingExceptionLength": 0,
+    "notificationRestriction": "blockOrganizationalData",
+    "previousPinBlockCount": 0,
+    "managedBrowser": "microsoftEdge",
+    "maximumAllowedDeviceThreatLevel": "notConfigured",
+    "mobileThreatDefenseRemediationAction": "block",
+    "blockDataIngestionIntoOrganizationDocuments": false,
+    "allowedDataIngestionLocations": [
+      "oneDriveForBusiness",
+      "sharePoint",
+      "camera"
+    ],
+    "appActionIfUnableToAuthenticateUser": "block",
+    "dialerRestrictionLevel": "allApps",
+    "isAssigned": false,
+    "targetedAppManagementLevels": "unspecified",
+    "appDataEncryptionType": "whenDeviceLocked",
+    "deployedAppCount": 11,
+    "faceIdBlocked": false,
+    "appActionIfIosDeviceModelNotAllowed": "block",
+    "thirdPartyKeyboardsBlocked": false,
+    "filterOpenInToOnlyManagedApps": false,
+    "disableProtectionOfManagedOutboundOpenInData": false,
+    "protectInboundDataFromUnknownSources": false,
+    "customBrowserProtocol": "",
+    "exemptedAppProtocols": [
+      {
+        "name": "Default",
+        "value": "skype;app-settings;calshow;itms;itmss;itms-apps;itms-appss;itms-services;"
+      }
+    ],
+    "apps": [
+      {
+        "mobileAppIdentifier": {
+          "@odata.type": "#microsoft.graph.iosMobileAppIdentifier",
+          "bundleId": "com.microsoft.msedge"
+        }
+      },
+      {
+        "mobileAppIdentifier": {
+          "@odata.type": "#microsoft.graph.iosMobileAppIdentifier",
+          "bundleId": "com.microsoft.office.excel"
+        }
+      },
+      {
+        "mobileAppIdentifier": {
+          "@odata.type": "#microsoft.graph.iosMobileAppIdentifier",
+          "bundleId": "com.microsoft.office.outlook"
+        }
+      },
+      {
+        "mobileAppIdentifier": {
+          "@odata.type": "#microsoft.graph.iosMobileAppIdentifier",
+          "bundleId": "com.microsoft.office.powerpoint"
+        }
+      },
+      {
+        "mobileAppIdentifier": {
+          "@odata.type": "#microsoft.graph.iosMobileAppIdentifier",
+          "bundleId": "com.microsoft.office.word"
+        }
+      },
+      {
+        "mobileAppIdentifier": {
+          "@odata.type": "#microsoft.graph.iosMobileAppIdentifier",
+          "bundleId": "com.microsoft.officemobile"
+        }
+      },
+      {
+        "mobileAppIdentifier": {
+          "@odata.type": "#microsoft.graph.iosMobileAppIdentifier",
+          "bundleId": "com.microsoft.onenote"
+        }
+      },
+      {
+        "mobileAppIdentifier": {
+          "@odata.type": "#microsoft.graph.iosMobileAppIdentifier",
+          "bundleId": "com.microsoft.sharepoint"
+        }
+      },
+      {
+        "mobileAppIdentifier": {
+          "@odata.type": "#microsoft.graph.iosMobileAppIdentifier",
+          "bundleId": "com.microsoft.skydrive"
+        }
+      },
+      {
+        "mobileAppIdentifier": {
+          "@odata.type": "#microsoft.graph.iosMobileAppIdentifier",
+          "bundleId": "com.microsoft.skype.teams"
+        }
+      },
+      {
+        "mobileAppIdentifier": {
+          "@odata.type": "#microsoft.graph.iosMobileAppIdentifier",
+          "bundleId": "com.microsoft.to-do"
+        }
+      }
+    ],
+    "@odata.type": "#microsoft.graph.iosManagedAppProtection"
+  },
+  "assign": {
+    "allUsers": true
+  }
+}

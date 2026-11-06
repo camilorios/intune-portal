@@ -4,24 +4,29 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Portal Intune</title>
 <style>
-  :root{--b:#0f6cbd;--bg:#f5f7fa;--card:#fff;--muted:#5b6470;--err:#c50f1f;--ok:#107c10}
+  :root{--b:#0f6cbd;--bg:#f5f7fa;--card:#fff;--muted:#5b6470;--err:#c50f1f;--ok:#107c10;--warn:#bc4b09}
   *{box-sizing:border-box}body{margin:0;font-family:Segoe UI,system-ui,sans-serif;background:var(--bg);color:#1b1f24}
   header{background:var(--b);color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center}
   header h1{font-size:18px;margin:0}header a{color:#fff}
-  main{max-width:1100px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:300px 1fr;gap:16px}
+  main{max-width:1200px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:290px 1fr;gap:16px}
   .card{background:var(--card);border-radius:10px;padding:16px;box-shadow:0 1px 3px #0001}
-  h2{font-size:15px;margin:0 0 12px}button{background:var(--b);color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:14px}
+  h2{font-size:15px;margin:0 0 12px}h3{font-size:14px;margin:16px 0 8px}
+  button{background:var(--b);color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer;font-size:14px}
   button.sec{background:#e8eef6;color:var(--b)}button.danger{background:var(--err)}button:disabled{opacity:.5;cursor:default}
   .tenant{padding:8px;border-radius:6px;cursor:pointer;font-size:13px;word-break:break-all}.tenant.sel,.tenant:hover{background:#e8eef6}
   select,input{width:100%;padding:8px;border:1px solid #ccd3dc;border-radius:6px;font-size:14px;margin:6px 0}
-  table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:6px;border-bottom:1px solid #eef1f5}
-  .muted{color:var(--muted);font-size:13px}.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-  #log{white-space:pre-wrap;font-family:Consolas,monospace;font-size:12px;background:#0b1220;color:#d6e2ff;border-radius:8px;padding:12px;max-height:260px;overflow:auto}
-  .ok{color:var(--ok)}.bad{color:var(--err)}
+  table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:6px;border-bottom:1px solid #eef1f5;vertical-align:top}
+  .muted{color:var(--muted);font-size:13px}.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;align-items:center}
+  .tabs{display:flex;gap:4px;border-bottom:1px solid #e3e8ef;margin:-4px 0 14px}.tabs button{background:none;color:var(--muted);border-radius:6px 6px 0 0}
+  .tabs button.on{color:var(--b);border-bottom:2px solid var(--b);font-weight:600}
+  #log{white-space:pre-wrap;font-family:Consolas,monospace;font-size:12px;background:#0b1220;color:#d6e2ff;border-radius:8px;padding:12px;max-height:240px;overflow:auto}
+  .ok{color:var(--ok)}.bad{color:var(--err)}.warn{color:var(--warn)}.pill{font-size:11px;padding:2px 8px;border-radius:10px;background:#eef1f5}
+  .note{background:#fff4ce;border-radius:6px;padding:8px 10px;font-size:13px;margin:8px 0}
+  code{font-size:12px}
 </style>
 </head>
 <body>
-<header><h1>Portal de despliegue Intune</h1><div><span id="user" class="muted" style="color:#dfe9f7"></span> · <a href="/.auth/logout">Salir</a></div></header>
+<header><h1>Portal de despliegue Intune</h1><div><span id="user" style="color:#dfe9f7"></span> · <a href="/.auth/logout">Salir</a></div></header>
 <main>
   <section class="card">
     <h2>Clientes</h2>
@@ -35,42 +40,84 @@
   </section>
 </main>
 <script>
-let tenant=null, baselines=[];
+let tenant=null, baselines=[], tab='deploy';
 const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const short=v=>{const s=typeof v==='string'?v:JSON.stringify(v);return esc(s&&s.length>80?s.slice(0,80)+'…':s)};
 const log=m=>{$('log').textContent=`[${new Date().toLocaleTimeString()}] ${m}\n`+($('log').textContent==='—'?'':$('log').textContent)};
 async function api(path,opt={}){const r=await fetch(path,{headers:{'Content-Type':'application/json'},...opt});
   const t=await r.text();let d;try{d=JSON.parse(t)}catch{d=t}
-  if(!r.ok)throw new Error(d.detail||t);return d}
-async function init(){
-  api('/me').then(d=>$('user').textContent=d.user).catch(()=>{});
+  if(!r.ok)throw new Error((d&&d.detail)||t);return d}
+const confirmBox=(id,label,fn)=>`<p class="muted">Para confirmar, escribe el ID del tenant:</p><input id="${id}" placeholder="${tenant}"><div class="row"><button class="${label.danger?'danger':''}" onclick="${fn}">${label.text}</button></div>`;
+const confirmed=id=>{if($(id).value.trim()!==tenant){log('La confirmación no coincide con el tenant.');return false}return true};
+
+async function init(){api('/me').then(d=>$('user').textContent=d.user).catch(()=>{});
   baselines=await api('/baselines');loadTenants()}
-async function loadTenants(){
-  const t=await api('/tenants');const ids=Object.keys(t);
-  $('tenants').innerHTML=ids.length?ids.map(id=>`<div class="tenant ${id===tenant?'sel':''}" onclick="pick('${id}')"><b>${t[id].name}</b><br><span class="muted">alta ${t[id].onboarded.slice(0,10)}</span></div>`).join(''):'Aún no hay clientes.'}
+async function loadTenants(){const t=await api('/tenants');const ids=Object.keys(t);
+  $('tenants').innerHTML=ids.length?ids.map(id=>`<div class="tenant ${id===tenant?'sel':''}" onclick="pick('${id}')"><b>${esc(t[id].name)}</b><br><span class="muted">alta ${t[id].onboarded.slice(0,10)}</span></div>`).join(''):'Aún no hay clientes.'}
 async function copyConsent(){const d=await api('/onboarding/consent-url');await navigator.clipboard.writeText(d.url);log('Enlace de alta copiado al portapapeles.')}
-async function pick(id){tenant=id;loadTenants();
-  $('panel').innerHTML=`<h2>Cliente ${id}</h2>
-  <div class="row"><button class="sec" onclick="backup()">Hacer backup</button></div>
-  <h2 style="margin-top:16px">Desplegar baseline</h2>
-  <select id="bl">${baselines.map(b=>`<option>${b.name}</option>`).join('')}</select>
-  <div class="row"><button class="sec" onclick="preview()">Vista previa</button></div>
-  <div id="prev"></div>
-  <h2 style="margin-top:16px">Despliegues</h2><div id="deps" class="muted">Cargando…</div>`;
-  loadDeps()}
-async function loadDeps(){const d=await api(`/tenants/${tenant}/deployments`);
-  $('deps').innerHTML=d.length?`<table><tr><th>Fecha</th><th>Baseline</th><th>Creados</th><th>Errores</th><th></th></tr>${d.map(x=>`<tr><td>${(x.at||'').slice(0,16).replace('T',' ')}</td><td>${x.baseline}</td><td>${x.created}</td><td class="${x.errors?'bad':''}">${x.errors}</td><td><button class="danger" onclick="rollback('${x.id}')">Revertir</button></td></tr>`).join('')}</table>`:'Sin despliegues.'}
-async function backup(){log('Haciendo backup…');try{const d=await api(`/tenants/${tenant}/backup`,{method:'POST'});log('Backup listo: '+d.backup_id)}catch(e){log('Error: '+e.message)}}
-async function preview(){const b=$('bl').value;log('Calculando vista previa de '+b+'…');
-  try{const p=await api(`/tenants/${tenant}/preview/${b}`);
-  $('prev').innerHTML=`<table><tr><th>Tipo</th><th>Objeto</th><th>Acción</th></tr>${p.map(x=>`<tr><td>${x.resource}</td><td>${x.name}</td><td class="${x.action==='create'?'ok':'muted'}">${x.action}</td></tr>`).join('')}</table>
-  <p class="muted">Para aplicar, escribe el ID del tenant:</p><input id="conf" placeholder="${tenant}"><div class="row"><button onclick="deploy()">Desplegar</button></div>`;log('Vista previa lista.')}catch(e){log('Error: '+e.message)}}
-async function deploy(){const b=$('bl').value;if($('conf').value.trim()!==tenant)return log('La confirmación no coincide con el tenant.');
-  log('Desplegando '+b+' (con snapshot previo)…');
-  try{const d=await api(`/tenants/${tenant}/deploy`,{method:'POST',body:JSON.stringify({baseline:b,confirm_tenant:tenant})});
-  log(`Despliegue ${d.deployment_id}: ${d.created.length} creados, ${d.errors.length} errores.`+d.errors.map(e=>`\n  ✗ ${e.name}: ${e.error.slice(0,200)}`).join(''));loadDeps()}catch(e){log('Error: '+e.message)}}
-async function rollback(id){const c=prompt('Esto eliminará lo creado por el despliegue '+id+'. Escribe el ID del tenant para confirmar:');
-  if(c!==tenant)return log('Reversión cancelada.');log('Revirtiendo '+id+'…');
-  try{const d=await api(`/tenants/${tenant}/rollback`,{method:'POST',body:JSON.stringify({deployment_id:id,confirm_tenant:tenant})});log(`Revertido: ${d.removed.length} eliminados, ${d.errors.length} errores. Backup previo ${d.backup_id}.`)}catch(e){log('Error: '+e.message)}}
+function pick(id){tenant=id;loadTenants();render()}
+function setTab(t){tab=t;render()}
+const blOptions=()=>baselines.map(b=>`<option value="${b.name}">${esc(b.title||b.name)}</option>`).join('');
+function blInfo(){const b=baselines.find(x=>x.name===$('bl').value);if(!b)return;
+  $('blinfo').innerHTML=`<p class="muted">${esc(b.description||'')}${b.requires?` <span class="pill">Requiere ${esc(b.requires)}</span>`:''}${b.source?`<br>Fuente: ${esc(b.source)}`:''}</p>
+  <table><tr><th>Tipo</th><th>Objeto</th><th>Asignación</th></tr>${b.items.map(i=>`<tr><td>${esc(i.type)}</td><td>${esc(i.name)}</td><td class="muted">${asg(i.assign)}</td></tr>`).join('')}</table>`;
+  if($('prev'))$('prev').innerHTML=''}
+function asg(a){if(!a)return '—';const p=[];if(a.allDevices)p.push('Todos los dispositivos');if(a.allUsers)p.push('Todos los usuarios');
+  (a.groups||[]).forEach(g=>p.push('Grupo: '+g));(a.excludeGroups||[]).forEach(g=>p.push('Excluye: '+g));if(a.filter)p.push(`Filtro (${a.filter.mode||'include'}): ${a.filter.name}`);return esc(p.join(' · '))}
+
+function render(){
+  const tabs=[['deploy','Desplegar'],['drift','Desviaciones'],['history','Historial'],['reset','Restablecer']];
+  let h=`<h2>Cliente ${tenant}</h2><div class="tabs">${tabs.map(([k,l])=>`<button class="${tab===k?'on':''}" onclick="setTab('${k}')">${l}</button>`).join('')}</div>`;
+  if(tab==='deploy'){h+=`<label class="muted">Baseline</label><select id="bl" onchange="blInfo()">${blOptions()}</select><div id="blinfo"></div>
+    <label class="muted">Si el objeto ya existe en el cliente</label>
+    <select id="mode"><option value="skip">Omitirlo (no tocar lo existente)</option><option value="update">Actualizarlo a los valores de la baseline</option></select>
+    <div class="row"><button class="sec" onclick="preview()">Vista previa</button><button class="sec" onclick="backup()">Hacer backup</button></div><div id="prev"></div>`}
+  if(tab==='drift'){h+=`<p class="muted">Compara lo desplegado con la baseline, propiedad por propiedad, y detecta cambios manuales.</p>
+    <select id="bl">${blOptions()}</select><div class="row"><button class="sec" onclick="checkDrift()">Comprobar</button></div><div id="drift"></div>`}
+  if(tab==='history'){h+=`<h3>Despliegues</h3><div id="deps" class="muted">Cargando…</div><h3>Backups</h3><div id="bks" class="muted">Cargando…</div><h3>Auditoría</h3><div id="aud" class="muted">Cargando…</div>`}
+  if(tab==='reset'){h+=`<h3>Modo 1 · Revertir un despliegue</h3><p class="muted">Desde el Historial, botón Revertir en el despliegue.</p>
+    <h3>Modo 2 · Quitar todo lo del portal</h3><p class="muted">Elimina solo objetos con el prefijo [HK]. Lo que el cliente creó por su cuenta no se toca. Nunca se ejecutan acciones sobre dispositivos.</p>
+    <div class="row"><button class="sec" onclick="resetPreview()">Ver qué se eliminaría</button></div><div id="rst"></div>
+    <h3>Modo 3 · Reset total</h3><p class="muted">Pendiente: exigirá rol de administrador del portal.</p>`}
+  $('panel').innerHTML=h;
+  if(tab==='deploy')blInfo();if(tab==='history')loadHistory()}
+
+async function backup(){log('Haciendo backup…');try{const d=await api(`/tenants/${tenant}/backup`,{method:'POST'});log('Backup listo (cifrado): '+d.backup_id)}catch(e){log('Error: '+e.message)}}
+async function preview(){const b=$('bl').value,m=$('mode').value;log(`Calculando vista previa de ${b} (${m})…`);
+  try{const p=await api(`/tenants/${tenant}/preview/${b}?mode=${m}`);const errs=p.filter(x=>x.action.startsWith('error')).length;
+  const cls=a=>a==='create'||a==='update'?'ok':a.startsWith('error')?'bad':'muted';
+  $('prev').innerHTML=`<h3>Vista previa</h3><table><tr><th>Tipo</th><th>Objeto</th><th>Acción</th></tr>${p.map(x=>`<tr><td>${esc(x.type)}</td><td>${esc(x.name)}</td><td class="${cls(x.action)}">${esc(x.action)}${x.changes.length?`<br><span class="muted">${esc(x.changes.join(', '))}</span>`:''}</td></tr>`).join('')}</table>
+  ${p.some(x=>x.resource==='conditionalAccess')?'<div class="note">El acceso condicional se crea en modo <b>solo informe</b>. Añade las cuentas de emergencia al grupo antes de activarlo.</div>':''}
+  ${errs?`<div class="note">Hay ${errs} objeto(s) con referencias que no existen en el cliente. Despliega primero la baseline de grupos y filtros.</div>`:''}
+  <p class="muted">Antes de aplicar se toma un backup automático.</p>${confirmBox('conf',{text:'Desplegar'},'deploy()')}`;log('Vista previa lista.')}catch(e){log('Error: '+e.message)}}
+async function deploy(){if(!confirmed('conf'))return;const b=$('bl').value,m=$('mode').value;log(`Desplegando ${b} (${m})…`);
+  try{const d=await api(`/tenants/${tenant}/deploy`,{method:'POST',body:JSON.stringify({baseline:b,mode:m,confirm_tenant:tenant})});
+  log(`Despliegue ${d.deployment_id}: ${d.created.length} creados, ${d.updated.length} actualizados, ${d.skipped.length} omitidos, ${d.errors.length} errores.`+d.errors.map(e=>`\n  ✗ ${e.name}: ${e.error.slice(0,200)}`).join(''));$('prev').innerHTML=''}catch(e){log('Error: '+e.message)}}
+async function checkDrift(){const b=$('bl').value;log('Comprobando desviaciones de '+b+'…');
+  try{const rows=await api(`/tenants/${tenant}/drift/${b}`);const n=rows.filter(r=>r.status==='desviado').length;
+  const cls=s=>s==='ok'?'ok':s==='desviado'?'warn':'bad';
+  $('drift').innerHTML=`<table><tr><th>Objeto</th><th>Estado</th><th>Diferencias (esperado → actual)</th></tr>${rows.map(r=>`<tr><td>${esc(r.name)}<br><span class="muted">${esc(r.type)}</span></td><td class="${cls(r.status)}">${r.status}</td><td>${r.differences.map(d=>`<code>${esc(d.property)}</code>: ${short(d.expected)} → <span class="bad">${short(d.actual)}</span>`).join('<br>')||'—'}</td></tr>`).join('')}</table>
+  ${n?confirmBox('confd',{text:`Restaurar ${n} objeto(s)`},'restoreDrift()'):''}`;log(`${n} objeto(s) desviados.`)}catch(e){log('Error: '+e.message)}}
+async function restoreDrift(){if(!confirmed('confd'))return;const b=$('bl').value;log('Restaurando valores de '+b+'…');
+  try{const d=await api(`/tenants/${tenant}/drift/restore`,{method:'POST',body:JSON.stringify({baseline:b,confirm_tenant:tenant})});
+  log(`Restaurados ${d.fixed.length}, omitidos ${d.skipped.length}, errores ${d.errors.length}. Backup previo ${d.backup_id}.`);checkDrift()}catch(e){log('Error: '+e.message)}}
+async function loadHistory(){
+  const [d,b,a]=await Promise.all([api(`/tenants/${tenant}/deployments`),api(`/tenants/${tenant}/backups`),api(`/tenants/${tenant}/audit`)]);
+  const f=x=>(x||'').slice(0,16).replace('T',' ');
+  $('deps').innerHTML=d.length?`<table><tr><th>Fecha</th><th>Baseline</th><th>Modo</th><th>Creados</th><th>Actualizados</th><th>Errores</th><th></th></tr>${d.map(x=>`<tr><td>${f(x.at)}</td><td>${esc(x.baseline)}</td><td>${x.mode||'skip'}</td><td>${x.created}</td><td>${x.updated}</td><td class="${x.errors?'bad':''}">${x.errors}</td><td><button class="danger" onclick="rollback('${x.id}')">Revertir</button></td></tr>`).join('')}</table>`:'Sin despliegues.';
+  $('bks').innerHTML=b.length?`<table><tr><th>Fecha</th><th>Motivo</th><th>ID</th></tr>${b.slice(0,15).map(x=>`<tr><td>${f(x.at)}</td><td>${esc(x.reason)}</td><td class="muted">${x.id}</td></tr>`).join('')}</table>`:'Sin backups.';
+  $('aud').innerHTML=a.length?`<table><tr><th>Fecha</th><th>Acción</th><th>Usuario</th></tr>${a.slice(0,30).map(x=>`<tr><td>${f(x.at)}</td><td>${esc(x.action)}</td><td>${esc(x.user||'')}</td></tr>`).join('')}</table>`:'Sin actividad.'}
+async function rollback(id){const c=prompt('Esto eliminará lo creado y devolverá lo actualizado por el despliegue '+id+'. Escribe el ID del tenant para confirmar:');
+  if((c||'').trim()!==tenant)return log('Reversión cancelada.');log('Revirtiendo '+id+'…');
+  try{const d=await api(`/tenants/${tenant}/rollback`,{method:'POST',body:JSON.stringify({deployment_id:id,confirm_tenant:tenant})});
+  log(`Revertido: ${d.removed.length} eliminados, ${d.restored.length} restaurados, ${d.errors.length} errores. Backup previo ${d.backup_id}.`);loadHistory()}catch(e){log('Error: '+e.message)}}
+async function resetPreview(){log('Buscando objetos [HK]…');try{const p=await api(`/tenants/${tenant}/reset/owned`);
+  $('rst').innerHTML=p.length?`<table><tr><th>#</th><th>Tipo</th><th>Objeto</th></tr>${p.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.type)}</td><td>${esc(x.name)}</td></tr>`).join('')}</table>
+  <p class="muted">Se eliminan en este orden, con backup previo.</p>${confirmBox('confr',{text:`Eliminar ${p.length} objeto(s)`,danger:true},'resetOwned()')}`:'<p class="muted">No hay objetos del portal en este cliente.</p>';log(`${p.length} objeto(s) del portal.`)}catch(e){log('Error: '+e.message)}}
+async function resetOwned(){if(!confirmed('confr'))return;log('Eliminando objetos del portal…');
+  try{const d=await api(`/tenants/${tenant}/reset/owned`,{method:'POST',body:JSON.stringify({confirm_tenant:tenant})});
+  log(`Eliminados ${d.removed.length}, errores ${d.errors.length}. Backup previo ${d.backup_id}.`);$('rst').innerHTML=''}catch(e){log('Error: '+e.message)}}
 init();
 </script>
 </body>

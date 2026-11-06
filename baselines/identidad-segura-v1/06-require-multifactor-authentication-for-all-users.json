@@ -1,0 +1,44 @@
+{
+  "resource": "conditionalAccess",
+  "body": {
+    "conditions": {
+      "userRiskLevels": [],
+      "signInRiskLevels": [],
+      "clientAppTypes": [
+        "all"
+      ],
+      "servicePrincipalRiskLevels": [],
+      "applications": {
+        "includeApplications": [
+          "All"
+        ],
+        "excludeApplications": [],
+        "includeUserActions": [],
+        "includeAuthenticationContextClassReferences": []
+      },
+      "users": {
+        "includeUsers": [
+          "All"
+        ],
+        "excludeUsers": [],
+        "includeGroups": [],
+        "excludeGroups": [
+          "@group:Cuentas de emergencia (break-glass)"
+        ],
+        "includeRoles": [],
+        "excludeRoles": [
+          "d29b2b05-8046-44ba-8758-1e26182fcf32"
+        ]
+      }
+    },
+    "grantControls": {
+      "operator": "OR",
+      "builtInControls": [
+        "mfa"
+      ],
+      "customAuthenticationFactors": [],
+      "termsOfUse": []
+    },
+    "displayName": "Require multifactor authentication for all users"
+  }
+}
