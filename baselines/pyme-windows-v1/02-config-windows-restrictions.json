@@ -1,0 +1,12 @@
+{
+  "resource": "deviceConfigurations",
+  "assignAllDevices": true,
+  "body": {
+    "@odata.type": "#microsoft.graph.windows10GeneralConfiguration",
+    "displayName": "Windows - Restricciones generales",
+    "description": "Creado por el portal. Bloquea cuentas Microsoft personales y Cortana.",
+    "accountsBlockAddingNonMicrosoftAccountEmail": true,
+    "cortanaBlocked": true,
+    "storageRequireMobileDeviceEncryption": true
+  }
+}

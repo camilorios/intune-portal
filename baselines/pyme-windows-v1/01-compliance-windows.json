@@ -1,0 +1,26 @@
+{
+  "resource": "compliance",
+  "assignAllDevices": true,
+  "body": {
+    "@odata.type": "#microsoft.graph.windows10CompliancePolicy",
+    "displayName": "Windows - Cumplimiento base",
+    "description": "Creado por el portal. BitLocker, Secure Boot, antivirus y firewall.",
+    "bitLockerEnabled": true,
+    "secureBootEnabled": true,
+    "codeIntegrityEnabled": true,
+    "defenderEnabled": true,
+    "antivirusRequired": true,
+    "antiSpywareRequired": true,
+    "rtpEnabled": true,
+    "activeFirewallRequired": true,
+    "osMinimumVersion": "10.0.19045",
+    "scheduledActionsForRule": [
+      {
+        "ruleName": "PasswordRequired",
+        "scheduledActionConfigurations": [
+          {"actionType": "block", "gracePeriodHours": 24, "notificationTemplateId": "", "notificationMessageCCList": []}
+        ]
+      }
+    ]
+  }
+}
