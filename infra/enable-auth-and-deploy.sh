@@ -16,6 +16,8 @@ if [ -z "$ADMIN_APP_ID" ]; then
 fi
 ADMIN_SECRET=$(az ad app credential reset --id "$ADMIN_APP_ID" --display-name "easyauth" --years 1 --append --query password -o tsv)
 
+az config set extension.use_dynamic_install=yes_without_prompt -o none
+az webapp auth config-version upgrade -g "$RG" -n "$APP" -o none 2>/dev/null || true
 az webapp auth microsoft update -g "$RG" -n "$APP" --client-id "$ADMIN_APP_ID" --client-secret "$ADMIN_SECRET" \
   --issuer "https://login.microsoftonline.com/$TENANT_ID/v2.0" --yes -o none
 unset ADMIN_SECRET
